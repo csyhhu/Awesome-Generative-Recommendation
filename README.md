@@ -7,6 +7,9 @@
 # Awesome Generative Recommendation
 Paper collection, Summary, Code for Generative Recommendation
 
+# Must Read
+- [MTGR: Industrial-Scale Generative Recommendation Framework in Meituan](https://arxiv.org/abs/2505.18654)
+
 # By Conference
 - [2025]()
 
