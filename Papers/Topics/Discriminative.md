@@ -16,7 +16,7 @@ They basically re-construct model architecture using `Transformers`, leading to 
 | [RankMixer: Scaling Up Ranking Models in Industrial Recommenders]()                                            | ByteDance      | 2025    |
 | [SessionRec: Next Session Prediction Paradigm For Generative Sequential Recommendation]()                      | Meituan        |         |
 | [Sparse Meets Dense: Unified Generative Recommendations with Cascaded Sparse-Dense Representations]()          | Baidu          |         |
-| [ TBGRecall: A Generative Retrieval Model for E-commerce Recommendation Scenarios]()                           | Taobao         |         |
+| [TBGRecall: A Generative Retrieval Model for E-commerce Recommendation Scenarios]()                            | Taobao         |         |
 | [MARM: Unlocking the Future of Recommendation Systems through Memory Augmentation and Scalable Complexity]()   | KuaiShou       |         |
 | [Wukong: Towards a Scaling Law for Large-Scale Recommendation]()                                               |                |         |
 

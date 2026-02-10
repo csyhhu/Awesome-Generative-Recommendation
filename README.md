@@ -8,6 +8,8 @@
 Paper collection, Summary, Code for Generative Recommendation
 
 # Must Read
+- [Actions Speak Louder thanWords: Trillion-Parameter Sequential Transducers for Generative Recommendations]() 
+- [OneRec-V2 Technical Report]()
 - [MTGR: Industrial-Scale Generative Recommendation Framework in Meituan](https://arxiv.org/abs/2505.18654)
 
 # By Conference
@@ -15,6 +17,7 @@ Paper collection, Summary, Code for Generative Recommendation
 
 # By Topic
 Publications are categoried into topics with overlap:
-- [OneSeries]()
-- [Discriminative]()
-- [Long Sequence]()
+- [Discriminative](./Papers/Topics/Discriminative.md)
+- [OneSeries](./Papers/Topics/OneSeries.md)
+- [Long Sequence](./Papers/Topics/Long-Sequence.md)
+- [LLM-Enhanced](./Papers/Topics/LLM-Enhanced.md)
