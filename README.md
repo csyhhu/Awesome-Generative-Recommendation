@@ -17,7 +17,7 @@ Paper collection, Summary, Code for Generative Recommendation
 
 # By Topic
 Publications are categoried into topics with overlap:
-- [Discriminative](./Papers/Topics/Discriminative.md)
+- [Scaling Law](./Papers/Topics/Scaling-Law.md)
 - [OneSeries](./Papers/Topics/OneSeries.md)
 - [Long Sequence](./Papers/Topics/Long-Sequence.md)
 - [LLM-Enhanced](./Papers/Topics/LLM-Enhanced.md)
