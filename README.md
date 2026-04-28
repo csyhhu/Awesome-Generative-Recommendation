@@ -13,11 +13,12 @@ Paper collection, Summary, Code for Generative Recommendation
 - [MTGR: Industrial-Scale Generative Recommendation Framework in Meituan](https://arxiv.org/abs/2505.18654)
 
 # By Conference
-- [2025]()
+- [2025](./Papers/Conferences/2025.md)
 
 # By Topic
 Publications are categoried into topics with overlap:
 - [Scaling Law](./Papers/Topics/Scaling-Law.md)
 - [OneSeries](./Papers/Topics/OneSeries.md)
 - [Long Sequence](./Papers/Topics/Long-Sequence.md)
+- [Retrieval](./Papers/Topics/Retrieval.md)
 - [LLM-Enhanced](./Papers/Topics/LLM-Enhanced.md)
