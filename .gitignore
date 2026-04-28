@@ -2,3 +2,4 @@
 .pdf_venv
 .claude/
 Figures/
+.DS_Store
