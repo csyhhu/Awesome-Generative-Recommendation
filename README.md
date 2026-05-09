@@ -14,6 +14,7 @@ Paper collection, Summary, Code for Generative Recommendation
 
 # By Conference
 - [2025](./Papers/Conferences/2025.md)
+- [2026](./Papers/Conferences/2026.md)
 
 # By Topic
 Publications are categoried into topics with overlap:
