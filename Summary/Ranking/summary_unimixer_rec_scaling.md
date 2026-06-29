@@ -205,5 +205,120 @@ TokenMixer 思想体现在 Step 4 的全局混合环节（W_r @ H）。原始 To
 
 满足这两个条件，Step 4 就退化为纯粹的 TokenMixer shuffle 操作。
 
-## Appendix
-[AI Implementation](WorkSpace/unimixer_lite.py)
+### 6.7 Feature Tokenization 中 $N$ 的含义
+
+$N$ 是**特征域（feature domains）的数量**。在 Tokenization 前，$F$ 个原始特征先按语义归属分组为 $N$ 个不相交的特征域（User Profile / Item Features / Behavior Sequence / Query Features 等），每个域独立 Embedding 后拼接为长向量 $\mathbf{E} = [\mathbf{e}_1, ..., \mathbf{e}_N]$。
+
+$N$ 远小于 $F$（原始特征数），也远小于 $T$（最终 Token 数），仅作为中间分组，目的是让同语义域的多个特征共享 Embedding 空间，避免异构特征被强行挤进同一个 Embedding 维度。
+
+### 6.8 Step 1 输出维度 $T \times D$ 的物理含义
+
+- **$T$（Token 数量）**：长向量 $\mathbf{E}$（总长度 $L$）按固定步长 $d$ 均匀切分后的 block 数 $T = L/D$。每个 block 独立投影为一个 Token。与 UniFormer 的关键区别：UniMixer 的 Token 是**匿名**的——不携带显式语义身份，可能包含多个特征域的 Embedding 碎片。
+- **$D$（每个 Token 的隐向量维度）**：每个 block 经过专属线性投影 $W_i^{\text{proj}} \in \mathbb{R}^{D \times d}$ 映射到统一隐空间的维度。$D$ 是架构超参，不直接等于任何原始特征的 Embedding 维度。
+
+### 6.9 同一特征是否跨 Token？（匿名 Token 的设计考量）
+
+**是的，同一个特征（如用户性别）的 Embedding 完全可能出现在两个不同的 Token 中。** 原因在于 Step 1 的均匀切分不考虑语义边界：
+
+```
+E = [e_user_gender(64维) | e_user_age(32维) | e_item_id(128维) | ...]
+     └── Block 0 ──┘── Block 1 ──┘─── Block 2 ───┘── Block 3 ──┘ ...
+         (d=96)          (d=96)         (d=96)          (d=96)
+```
+
+这是 TokenMixer 系列方法的**刻意设计**，不是 Bug。UniMixer 的 Token 没有"我是性别特征"这种身份意识，靠后续 UniMixing 的可学习软置换矩阵自动重组这些碎片化的信息。这与 UniFormer 按语义域显式分组的 Tokenization 策略形成鲜明对比：**UniMixer 把信息组织的责任推给可学习模块，而非依赖语义先验。**
+
+### 6.10 UniMixing 中的 $H$ 与两套分块体系
+
+**$H$ 的物理含义**：
+
+$H = [\boldsymbol{x}_1 W_B^1 \;|\; \boldsymbol{x}_2 W_B^2 \;|\; ... \;|\; \boldsymbol{x}_{L/B} W_B^{L/B}]$ 是**局部混合的中间结果**——$\text{flatten}(X)$ 被切块后每个块用专属 $W_B^i$ 做完块内变换，但尚未进行全局混合。
+
+之后全局混合为 $W_G \cdot \text{reshape}(H, L/B, B)$。
+
+**Step 1 与 Step 2 的两套独立分块体系**：
+
+| | Step 1 (Tokenization) | Step 2 (UniMixing) |
+|------|------|------|
+| 切分对象 | 拼接后 Embedding 长向量 $\mathbf{E}$ | $\text{flatten}(X)$（$T$ 个 Token 展平） |
+| 总长度 | $\sum d_{\text{domain}}$ | $L = T \times D$ |
+| 块大小 | $d$（原始 block 维度） | $B$（局部混合块大小） |
+| 块数量 | $T = L/D$（Token 数量） | $L/B$（局部混合粒度） |
+| 作用 | 线性投影 → Token | 块内特征混合 $W_B^i$ |
+| 超参 | $T$（Token 粒度） | $B$（局部交互粒度） |
+
+举例：$T=16$, $D=64$, $L=1024$, $B=16$ → Step 2 把 1024 维切成 64 个 block。两者通过 $L = T \times D$ 隐式关联，但 $T$ 和 $B$ 独立可调。
+
+### 6.11 SiameseNorm 的输入输出维度
+
+**全程保持 $\mathbb{R}^{T \times D}$，不增不减。** 双流（$\bar{X}$ 与 $\bar{Y}$）每层独立更新后均保持 $T \times D$，最终融合 $X_{\text{output}} = \bar{X}_M + \text{RMSNorm}(\bar{Y}_M)$ 仍为 $T \times D$。
+
+SiameseNorm 仅改变残差流的组织方式（单流变双流），不改变 Token 数量或维度。$L/B$ 是 UniMixing 内部 $\text{flatten}(X)$ 的计算粒度，与 SiameseNorm 层面的 $T$ 无关。
+
+### 6.12 预测 Head：从 $X_{\text{output}}$ 到概率
+
+UniMixer 面向标准 CTR/CVR 二分类任务（论文为次日留存预测），输出流程为：
+
+$$X_{\text{output}} \in \mathbb{R}^{T \times D} \xrightarrow{\text{Flatten}} \mathbb{R}^{TD} \xrightarrow{\text{MLP}} \mathbb{R} \xrightarrow{\text{Sigmoid}} \hat{y} \in [0,1]$$
+
+$T$ 个匿名 Token 全部展平送入 MLP，由预测 Head 自行从这些"计算碎片"中提取预测信号，不做任何语义汇聚或池化。
+
+### 6.13 UniMixer vs UniFormer 异同对比
+
+两者同出快手，分别解决推荐 Scaling 的不同层次问题，是互补关系而非竞争。
+
+#### 核心定位差异
+
+| | UniMixer | UniFormer |
+|------|----------|-----------|
+| **发表** | NeurIPS 2024 | KDD 2025 |
+| **定位** | 统一**特征交互模块** | 统一**全模型架构** |
+| **出发点** | Attention/TokenMixer/FM 三类方法各自为政 → 模块级统一 | 行为建模/特征交互/多任务三组件独立演进 → 架构级联合扩展 |
+| **理论野心** | 数学证明三类方法均为 `全局混合 × 局部混合` 的特殊情形 | 提出"组件级 → 模型级"扩展的范式转变 |
+| **问题范围** | 窄：深耕单一模块内部 | 宽：覆盖推荐完整架构 |
+
+#### 技术实现对比
+
+| 维度 | UniMixer | UniFormer |
+|------|----------|-----------|
+| **Tokenization** | 单层线性投影，无 SwiGLU | 语义分组 + SwiGLU（单层）+ RMSNorm |
+| **Token 语义** | 匿名（均匀切分，不保留语义身份） | 显式语义标签（按特征域分组） |
+| **序列/行为建模** | ❌ 不涉及 | ✅ 核心组件（Cross-Attn + S-FFNs + Lazy KV） |
+| **特征交互机制** | 全局双随机矩阵 × 局部 Block 权重（矩阵乘法，无 QK 内积） | Cross-Attn + Self-Attn + NS-FFNs（标准 Transformer） |
+| **多任务** | ❌ 单任务 | ✅ TIM（Cross-Attn + SA + T-FFNs） |
+| **FFN** | Pertoken SwiGLU（每个 token 独立参数） | NS-FFNs / T-FFNs（per-group / per-task） |
+| **归一化** | SiameseNorm（双流耦合，Pre-Norm + Post-Norm） | Pre-Norm RMSNorm（单流） |
+| **深度扩展策略** | SiameseNorm 解决深层训练不稳定 | 多视图 FFN 保证各组件均衡扩展 |
+
+#### 交互机制的根本差异
+
+- **UniMixer**：用可学习双随机矩阵替代 QK 内积，彻底规避异构 token 间内积缺乏语义意义的问题。输出 = $W_G \cdot (W_B \cdot X)$，$W_G$ 不依赖输入 $X$。
+- **UniFormer**：底层仍是标准 Attention（QK 内积），通过**语义 Tokenization** 让 Query 有明确物理含义来缓解异构内积问题，但没有根除。
+
+#### 两者的层级关系
+
+```
+┌──────────────────────────────────────────────┐
+│                  UniFormer                    │
+│  ┌──────────┐  ┌──────────────┐  ┌────────┐ │
+│  │ 行为建模  │  │  特征交互(FIM) │  │ 多任务  │ │
+│  │ 序列CA   │  │  ★UniMixer   │  │ TIM    │ │
+│  │ S-FFNs   │  │  可嵌入此处★  │  │ T-FFNs │ │
+│  └──────────┘  └──────────────┘  └────────┘ │
+└──────────────────────────────────────────────┘
+```
+
+UniMixer 的 UniMixing-Lite 模块理论上可替换 UniFormer FIM 中的 Self-Attention + NS-FFN，进一步降低特征交互的计算开销。
+
+#### 架构流程对比
+
+| 阶段 | UniMixer | UniFormer |
+|------|----------|-----------|
+| Token 数全程 | $T$（恒定） | $q \to 2q$（FIM 内膨胀分裂）$\to t$（TIM 恒定） |
+| 输出 Token 含义 | $T$ 个匿名计算单元 | FIM: $2q$ 个特征胶囊；TIM: $t$ 个任务表示 |
+| 最终预测 | Flatten $T$ 个 Token → MLP → Sigmoid | $t$ 个任务各自 Head → Sigmoid |
+| 信息组织方式 | 靠学习模块自动重组 | 靠语义先验显式分组 |
+
+#### 一句话总结
+
+> **UniMixer** 是推荐 Scaling 的"显微镜"——用数学框架统一特征交互模块内部的三种范式；**UniFormer** 是推荐 Scaling 的"望远镜"——用工程架构统一行为建模、特征交互、多任务三大组件的联合扩展。一个是组件级统一，一个是架构级统一，两者互补。

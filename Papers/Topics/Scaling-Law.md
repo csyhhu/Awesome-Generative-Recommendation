@@ -21,9 +21,7 @@ They basically re-construct model architecture using `Transformers`, which contr
 | [Wukong: Towards a Scaling Law for Large-Scale Recommendation]()                                                   |                |         |
 | [MTFM: A Scalable and Alignment-free Foundation Model for Industrial Recommendation in Meituan]()                  | Meituan        | 2026.02 |
 | [Kunlun: Establishing Scaling Laws for Massive-Scale Recommendation Systems through Unified Architecture Design]() | Meta           | 2026.02 |
-
-| Publication                                                                                     | Affiliation | Year |
-|-------------------------------------------------------------------------------------------------|-------------|------|
-| [LightLM: A Lightweight Deep and Narrow Language Model for Generative Recommendation]()         |             |      |
-| [Multimodal Quantitative Language for Generative Recommendation]()                              |             |      |
-| [InterFormer: Effective Heterogeneous Interaction Learning for Click-Through Rate Prediction]() |             |      |
+| [HHFT: Hierarchical Heterogeneous Feature Transformer for Recommendation Systems](../../Summary/Ranking/summary_hhft_hierarchical_heterogeneous_transformer.md) | Taobao | 2026.02 |
+| [TokenMixer-Large: Scaling Up Large Ranking Models in Industrial Recommenders](../../Summary/Ranking/summary_tokenmixer_large.md) | ByteDance | 2025.11 |
+| [UniMixer: A Unified Architecture for Scaling Laws in Recommendation Systems](../../Summary/Ranking/summary_unimixer_rec_scaling.md)| Kuaishou | 2026.05 |
+| [UniFormer: Efficient and Unified Model-Centric Scaling for Industrial Recommendation](../../Summary\Ranking\summary_uniformer.md) | KuaiShou | 2026.06 |

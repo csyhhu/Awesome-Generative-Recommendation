@@ -1106,3 +1106,114 @@ OneReason 已在**快手本地生活广告场景**中实现稳定在线部署，
 3. 在 OneRec 中引入 **Thinking Token**，使用 decoder 侧 `<BOS>` 位置的 hidden state 作为监督目标
 4. 通过 **Alignment Network** 施加表示级约束，在语义空间中蒸馏 OneReason 的推理能力
 5. 扩展设计：User Representation Decoder 压缩编码器输出 + 双分支架构（Decoder with/without Reason）+ 基于空间残差的对比蒸馏方法
+
+---
+
+## 十二、深度 Q&A：RQ-KMeans 与 Semantic ID 的层级语义
+
+### Q1：RQ-KMeans 如何学习生成 Semantic ID？
+
+#### 1. Item Embedding 的端到端学习
+
+RQ-KMeans 不是直接在原始 item 特征上做聚类，而是**先学习一个可微的 item embedding，再对其做残差量化**。整个流程分为两步：
+
+**第一步：联合训练编码器，产出高质量 item embedding**
+
+```
+多模态编码器 (ViT + Qwen3-VL LLM + Audio Encoder)
+    ↓ 输入：封面图、视频帧、文本描述、音频
+    ↓
+Item Dense Embedding（紧凑的稠密向量）
+    ↓ 作为 soft prefix 拼接到 decoder LLM 前
+Decoder LLM → 预测 item 的文本描述（item understanding 任务）
+```
+
+关键设计（论文 Sec 2.2）：
+- 编码器**端到端优化**：将 item embedding 作为 soft prefix 送入一个单独的 decoder LLM，后接该 item 的文本描述。通过 `next-token prediction` 损失反向传播，使 embedding 本身携带充分的语义信息。
+- 这样学出来的 embedding 天然具有**语义连续性**：语义相似的 item embedding 在向量空间中也相近。
+
+**第二步：RQ-KMeans 量化**
+
+编码器产生的每个 item embedding 被送入 RQ-KMeans（引用自 Luo et al. 2025, QARM），配置如下：
+
+| 参数 | 配置 |
+|------|------|
+| Codebook 层数 | **3 层** |
+| 每层码本大小 | **8192** 个 code |
+| 最终 item 表达 | `<domain_begin><a_xxxx><b_xxxx><c_xxxx>` |
+
+#### 2. RQ-KMeans 残差量化的数学过程
+
+RQ-KMeans 的核心是**逐层残差逼近**：
+
+```
+Layer 1: 对所有 item embedding 做 KMeans（8192 类）
+         → 得到 code a_xxxx = argmin ||e - c_a||
+         → 残差 r₁ = e - c_a
+
+Layer 2: 对所有残差 r₁ 做 KMeans（8192 类）
+         → 得到 code b_xxxx = argmin ||r₁ - c_b||
+         → 残差 r₂ = r₁ - c_b = e - c_a - c_b
+
+Layer 3: 对所有残差 r₂ 做 KMeans（8192 类）
+         → 得到 code c_xxxx = argmin ||r₂ - c_c||
+```
+
+最终重建：`e ≈ c_a + c_b + c_c`
+
+#### 3. 训练流程
+
+完成 RQ-KMeans 量化后，每个 item 被赋予固定的 itemic pattern（如 `<|video_begin|><a_5028><b_6733><c_2559>`），其 token embedding 被加入 LLM 词表中进行预训练。
+
+预训练采用三阶段策略：
+
+| 阶段 | Token 预算 | 特点 |
+|------|:---:|------|
+| **Stage 1** | 110B | 仅训练新增的 itemic token embedding + LM head，主干网络冻结 |
+| **Stage 2** | 449B | 全参数联合训练，四粒度数据混合 |
+| **Stage 3** | 19B | 单样本长度提升至 32K，支持完整用户序列 |
+
+---
+
+### Q2：如何保证 `同一 <a_xxxx>` 的 Semantic ID 都对应同一视频分类？
+
+RQ-KMeans 的残差量化结构天然保证了这一点，不需要额外约束。其层级对应关系的保证来自**两个层面**：
+
+#### 1. 算法层面：RQ-KMeans 残差量化的内在层级
+
+RQ-KMeans **第一层直接对原始 embedding 做聚类**。由于：
+
+- Item embedding 经过**多模态编码器在 item understanding 任务上端到端训练**，语义相似的 item（如同一视频分类下的内容）已经被映射到相近的向量空间位置
+- 第一层 KMeans（8192 类）将整个语义空间划分为粗粒度的聚类簇
+- **同一个簇内的所有 item 必然共享同一个 `<a_xxxx>` code**
+
+这意味着：`<a_xxxx>` 本质上就是一个**粗粒度语义类别的标识符**。论文在 RL 部分直接确认：
+
+> "the first sub-token largely determines the subsequent decoding process and captures **coarse-grained item categories**"
+
+同时在 RL 的多样性奖励设计中，直接使用**首个子 token 的类别数**来计算推荐多样性，说明团队在实践中已验证 `<a_xxxx>` 确实对应了粗粒度分类。
+
+#### 2. 训练层面：Token 粒度数据显式强化层级语义
+
+论文在 **Token 粒度预训练数据**中设计了四类任务来显式建模这一层级结构：
+
+| 任务 | 作用 |
+|------|------|
+| **Single-Token Semantic Prediction** | 单个 `<a_xxxx>` → LLM 生成该 token 携带的语义（"这个 code 代表什么类型的视频"） |
+| **Compositional Prefix Semantic Prediction** | `<a_xxxx><b_xxxx>` → LLM 总结组合语义，让模型理解 a 提供粗分类，a+b 共同定义更细的类别 |
+| **Prefix Itemic Token Grounding** | 文本描述 → 对应的 `<a_xxxx><b_xxxx>` 前缀（反向映射） |
+| **Part-to-Whole Semantic Prediction** | 先分步解释每个 token 的语义 → 再合成整体 caption |
+
+这些任务**假设了层级结构已经存在**（由 RQ-KMeans 产生），然后通过监督学习**让语言模型理解并内化**这个层级关系。消融实验表明，加入 Token 粒度数据后，R0 感知任务从 16.37% 飙升至 37.86%，验证了层级语义显式建模的关键作用。
+
+#### 3. 总结：层级语义的完整保障链
+
+```
+原始 item 特征 → 端到端多模态编码器（语义对齐）
+    → RQ-KMeans 第一层直接聚类（粗分类天然浮现）
+    → 同一 a_xxxx 的 item = 同一粗粒度语义类别
+    → Token 粒度预训练数据（LLM 显式学习这个层级关系）
+    → R1-R3 CoT 数据中的 itemic token 引用进一步强化
+```
+
+**不需要任何显式的分类标签注入**。整个层级结构是 **RQ-KMeans 残差量化的自然产物**，而非人工设计的分类体系。
