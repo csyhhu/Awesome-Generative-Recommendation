@@ -352,6 +352,7 @@ Update: 更新用户偏好：夏季、透气、骑行装备
 - **工具中介式推荐**：ShopX 提供了替代范式，模型直接操作商品空间而非通过工具接口
 - **后检索 LLM 重排序**（如 RankGPT）：ShopX 覆盖完整履约链路，而非仅重排已有候选集
 - **生成式推荐与 SID**（TIGER, OneRec 系列）：ShopX 将 SID 从"候选生成器"提升为"模型操作的商品语言"
+- **用户表示学习**（TokenMinds）：与 TokenMinds 的对比分析见 [summary_tokenminds_user_modeling.md](../Ranking/summary_tokenminds_user_modeling.md)
 
 ---
 
