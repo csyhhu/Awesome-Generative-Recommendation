@@ -1,4 +1,4 @@
-# UniMixer: 推荐系统统一扩展架构
+# UniMixer: A Unified Architecture for Scaling Laws in Recommendation Systems
 
 论文链接：https://arxiv.org/abs/2604.00590
 发表会议：NeurIPS 2024

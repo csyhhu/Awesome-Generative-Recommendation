@@ -8,9 +8,17 @@
 Paper collection, Summary, Code for Generative Recommendation
 
 # Must Read
-- [Actions Speak Louder thanWords: Trillion-Parameter Sequential Transducers for Generative Recommendations]() 
-- [OneRec-V2 Technical Report]()
-- [MTGR: Industrial-Scale Generative Recommendation Framework in Meituan](https://arxiv.org/abs/2505.18654)
+| Paper                                                         | Summary |
+|---------------------------------------------------------------------|-------------|
+| [Actions Speak Louder thanWords: Trillion-Parameter Sequential Transducers for Generative Recommendations](https://arxiv.org/abs/2402.17152) | [Pionner work on Transformer in Recommendation System](./Summary/Ranking/summary_hstu_gr_2402_17152.md)|
+| [Recommender Systems with Generative Retrieval](https://arxiv.org/abs/2305.05065) | Semantic IDs |
+| [OneRec-V2 Technical Report](https://arxiv.org/abs/2508.20900) | Truly Generative Recommendation |
+| [MTGR: Industrial-Scale Generative Recommendation Framework in Meituan]() | [Unification of Sequential and Non-Sequential Features](./Summary/Ranking/summary_mtgr_meituan_generative_recommendation.md) |
+| [LONGER: Scaling Up Long Sequence Modeling in Industrial Recommenders](https://arxiv.org/abs/2505.04421) | Long Sequence |
+| [RankMixer](https://arxiv.org/abs/2507.15551) | Non-parametric Processing in Non-Sequential Features |
+| [TokenMixer-Large](https://arxiv.org/pdf/2602.06563) | [Unification of Sequential and Non-Sequential Features](./Summary/Ranking/summary_tokenmixer_large.md) |
+
+
 
 # By Conference
 - [2025](./Papers/Conferences/2025.md)
