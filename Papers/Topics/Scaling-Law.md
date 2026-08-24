@@ -26,3 +26,10 @@ They basically re-construct model architecture using `Transformers`, which contr
 | [MTFM: A Scalable and Alignment-free Foundation Model for Industrial Recommendation in Meituan](https://arxiv.org/abs/2602.11235) | Meituan | 2026.02 |
 | [UniMixer: A Unified Architecture for Scaling Laws in Recommendation Systems](../../Summary/Ranking/summary_unimixer_rec_scaling.md) | Kuaishou | 2026.04 |
 | [UniFormer: Efficient and Unified Model-Centric Scaling for Industrial Recommendation](../../Summary/Ranking/summary_uniformer.md) | Kuaishou | 2026.06 |
+
+
+## Feature Interaction
+- [Wukong: Towards a Scaling Law for Large-Scale Recommendation]()
+- [RankMixer: Scaling Up Ranking Models in Industrial Recommenders]()
+- [TokenMixer-Large: Scaling Up Large Ranking Models in Industrial Recommenders](../../Summary/Ranking/summary_tokenmixer_large.md)
+- [UniMixer: A Unified Architecture for Scaling Laws in Recommendation Systems](../../Summary/Ranking/summary_unimixer_rec_scaling.md)

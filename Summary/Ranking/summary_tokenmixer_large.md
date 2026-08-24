@@ -62,12 +62,12 @@ $$\mathbf{X}_G = \text{MLP}_g(\text{concat}[G_1, ..., G_{T-1}])$$
 
 - **第 1 层（Mixing）**：将 $T$ 个原始 Token split → concat 为 $H$ 个混合 Token → Pertoken SwiGLU：
   ```
-  X ∈ R^{T×D} → split → R^{T×H×(D/H)} → concat → R^{H×(T·D/H)} → pSwiGLU
+  X \in R^{T×D} → split \to R^{T×H×(D/H)} \to concat \to R^{H×(T·D/H)} \to pSwiGLU
   ```
 
 - **第 2 层（Reverting）**：将 $H$ 个混合 Token 还原为 $T$ 个 Token → Pertoken SwiGLU：
   ```
-  R^{H×(T·D/H)} → split → R^{T×H×(D/H)} → 重组每个原始位置的碎片 → R^{T×D} → pSwiGLU
+  R^{H×(T·D/H)} → split \to R^{T×H×(D/H)} \to 重组每个原始位置的碎片 \to R^{T×D} \to pSwiGLU
   ```
 
 $$
@@ -269,6 +269,40 @@ TokenMixer-Large 修复了 RankMixer 的三个残差设计缺陷：
 | 核心操作 | Mixing & Reverting（对称两层面） | 可学习双随机矩阵 $W_G \times W_B$ |
 | 残差设计 | Mixing-Reverting 保证 TSA + Pre-Norm RMSNorm | SiameseNorm 双流耦合 |
 | MoE | Sparse-Pertoken MoE（Sparse Train + Sparse Infer） | Pertoken SwiGLU（无 MoE） |
+
+### 与 UniMixer Eq.14 的 reshape 对照
+
+TokenMixer-Large 的两次对称 reshape 与 UniMixer Eq.14 的 reshape 形成机制对照（详见 [UniMixer summary 6.21.9]
+
+**TokenMixer-Large 两次 reshape**：
+- Mixing: (T,D) → split → (T,H,D/H) → concat → (H, T·D/H)  # 转置，reshape 即 mixing
+- Reverting: (H, T·D/H) → split → (T,H,D/H) → 重组 → (T,D)  # 反转置还原
+
+**UniMixer Eq.14**：
+- H = [x_1 W_B^1; ...; x_{L/B} W_B^{L/B}]  # 局部混合（L 维）
+- 全局混合 = W_G · reshape(H, L/B, B)  # reshape 是形状辅助，mixing 是 W_G 矩阵乘
+- → reshape 回 L 维  # 还原
+
+| 维度 | TokenMixer-Large | UniMixer Eq.14 |
+|---|---|---|
+| reshape 角色 | **reshape 即 mixing**（转置=信息交换）| reshape 是形状辅助，mixing 是可学习矩阵 |
+| 参数 | 零参数、零矩阵乘 | W_G·W_B 可学习 |
+| 复杂度 | O(1) 计算（纯形状重组）| O(L²) 矩阵乘 |
+| 维度循环 | Mixing+Reverting 保证 T→H→T | reshape 回 L 维保证残差 |
+| 创新方向 | 工程极致（保 reshape，优结构）| 数学统一（替 reshape，可学习）|
+
+**核心对照**：两者都靠 reshape 维持维度循环使残差成立，但机制相反——TokenMixer-Large 用 reshape 做 mixing（极简、零参数），保留 O(1) 效率，创新在如何组织 reshape + 残差结构使深层可训；UniMixer 放弃 O(1) 效率，把 reshape 升级为可学习软置换矩阵 W_G·W_B，创新在 mixing 机制本身的数学统一。
+
+**TokenMixer-Large 在 token 交互上的创新定位**（除 Global Token 外，不含 Pertoken SwiGLU 单 token 计算）：
+
+诚实地说，TokenMixer-Large 在 token 交互上的创新主要是**结构性**的，而非**机制性**的——mixing 底层操作仍是 reshape 转置（与 RankMixer 相同），没有引入新的 mixing 算子。创新集中在"如何组织 reshape 使残差稳定"：
+
+- **Mixing & Reverting 对称两步**（核心，结构性）：保证 T→H→T 维度循环 + 残差语义对齐（OTR/TSA）
+- **Global Token**：BERT [CLS] 式全局聚合，提供全局交互锚点
+- **Inter-Residual 间隔残差**：每 2~3 层跨层残差，增强低层→高层 token 信号传输
+- **Auxiliary Loss**：低层 token 输出 logits 参与高层联合训练
+
+**关键观察**：论文明确指出"只要每个新 Token 包含所有原始 Token 的信息，具体切分方式（垂直/对角/随机）不影响效果"——这说明 mixing 机制本身被设计成无关紧要，重要的是信息完整性 + 残差结构。TokenMixer-Large 的重心在工程结构（残差、归一化、MoE、并行），而非 mixing 算法创新。这与 UniMixer 把 mixing 升级为可学习矩阵的方向相反：TokenMixer-Large 工程极致优化（保 reshape），UniMixer 数学理论统一（替 reshape）。
 
 ### 与 UniFormer 的关系
 

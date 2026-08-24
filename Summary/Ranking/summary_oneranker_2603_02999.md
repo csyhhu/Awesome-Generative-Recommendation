@@ -206,5 +206,3 @@ OneRanker 针对生成式广告推荐中的 **兴趣–价值冲突**、**目标
 **较贴论文的一句压缩**：**前面用 task/fake/双通道把 user（及 item 轻量增强）做实，并用内积支撑全库 MTP；后面用 \(\mathbf{T}_r\) 与多路径给出的候选 item token 作 Q，对 Step1/2 的 K/V cross→self，每候选一头 MLP 出分；BPR+DC 把排序与生成分布绑在一起。**
 
 ---
-
-*摘要依据 arXiv TeX 源 `sample-sigplan.tex` 整理；第 7 节融入阅读讨论与澄清。图表与公式编号以原稿为准。*

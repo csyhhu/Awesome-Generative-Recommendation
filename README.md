@@ -14,9 +14,9 @@ Paper collection, Summary, Code for Generative Recommendation
 | [Recommender Systems with Generative Retrieval](https://arxiv.org/abs/2305.05065) | Semantic IDs |
 | [OneRec-V2 Technical Report](https://arxiv.org/abs/2508.20900) | Truly Generative Recommendation |
 | [MTGR: Industrial-Scale Generative Recommendation Framework in Meituan]() | [Unification of Sequential and Non-Sequential Features](./Summary/Ranking/summary_mtgr_meituan_generative_recommendation.md) |
-| [LONGER: Scaling Up Long Sequence Modeling in Industrial Recommenders](https://arxiv.org/abs/2505.04421) | Long Sequence |
+| [LONGER: Scaling Up Long Sequence Modeling in Industrial Recommenders](https://arxiv.org/abs/2505.04421) | [Long Sequence](./Summary/Ranking/summary_longer_long_sequence.md) |
 | [RankMixer](https://arxiv.org/abs/2507.15551) | Non-parametric Processing in Non-Sequential Features |
-| [TokenMixer-Large](https://arxiv.org/pdf/2602.06563) | [Unification of Sequential and Non-Sequential Features](./Summary/Ranking/summary_tokenmixer_large.md) |
+| [UniMixer: A Unified Architecture for Scaling Laws in Recommendation Systems](https://arxiv.org/abs/2604.00590) | [Unification of Various Processing Method](./Summary/Ranking/summary_unimixer_rec_scaling.md)|  
 
 
 
