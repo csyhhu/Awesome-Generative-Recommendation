@@ -1,4 +1,4 @@
-# TokenMixer-Large: 工业级大规模排序模型扩展架构
+# TokenMixer-Large: Scaling Up Large Ranking Models in Industrial Recommenders
 
 论文链接：https://arxiv.org/abs/2602.06563
 发表会议：CIKM 2025
