@@ -5,3 +5,11 @@ Figures/
 .DS_Store
 recover.bat
 .cache
+knowledge/
+
+# Contains Meta-internal information (internal Workplace posts, wiki pages,
+# Diff/Task links, project codenames, unpublished internal metrics)
+Summary/Ranking/summary_llatte_scaling_laws.md
+Summary/Ranking/summary_lige_gr_listwise_upgrade.md
+
+Tutorials/Interest-Cache.md
