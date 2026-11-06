@@ -9,7 +9,10 @@ knowledge/
 
 # Contains Meta-internal information (internal Workplace posts, wiki pages,
 # Diff/Task links, project codenames, unpublished internal metrics)
-Summary/Ranking/summary_llatte_scaling_laws.md
+Summary/Long-Sequence/summary_llatte_scaling_laws.md
 Summary/Ranking/summary_lige_gr_listwise_upgrade.md
+Summary/Ranking/summary_loopfm_historical_fm_representations.md
+Summary/SID/summary_semantic_id_prefix_ngram_stability.md
+Summary/Long-Sequence/summary_glass_coarse_to_fine_long_term_interest.md
 
 Tutorials/Interest-Cache.md

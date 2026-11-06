@@ -172,4 +172,4 @@ Full-Re 和 Frozen 都从同一个 Day-1 模型出发，用相同的 Day1–30 �
 
 **与库内相关工作的关系**
 - 直接沿用 CQ-SID（QI 对比学习 RQ-VAE）以及 Ling et al. / TSGR（[summary_value_aware_gr.md](summary_value_aware_gr.md)）的价值感知第三层，可以看作对 TSGR 类价值 SID 方案在**持续更新阶段**的补充研究。
-- 和 SID 前缀 n-gram embedding（[../Ranking/summary_semantic_id_prefix_ngram_stability.md](../Ranking/summary_semantic_id_prefix_ngram_stability.md)）可以对照看：那篇用 SID 前缀共享 embedding，解决的是**排序模型 embedding 表示**随 item 变化而不稳定的问题；本文关注的是**生成式检索的 SID→Item 映射**随时间变化的稳定性。两者都说明，SID 的时间稳定性是工业落地中必须重视的问题。
+- 和 SID 前缀 n-gram embedding（[summary_semantic_id_prefix_ngram_stability.md](summary_semantic_id_prefix_ngram_stability.md)）可以对照看：那篇用 SID 前缀共享 embedding，解决的是**排序模型 embedding 表示**随 item 变化而不稳定的问题；本文关注的是**生成式检索的 SID→Item 映射**随时间变化的稳定性。两者都说明，SID 的时间稳定性是工业落地中必须重视的问题。

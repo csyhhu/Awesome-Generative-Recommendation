@@ -20,7 +20,7 @@ They basically re-construct model architecture using `Transformers`, which contr
 | [OnePiece: Bringing Context Engineering and Reasoning to Industrial Cascade Ranking System](https://arxiv.org/abs/2509.18091) | Shopee | 2025.09 |
 | [OneTrans: Unified Feature Interaction and Sequence Modeling with One Transformer in Industrial Recommender](https://arxiv.org/abs/2510.26104) | ByteDance, NTU | 2025.10 (WWW 2026) |
 | [HHFT: Hierarchical Heterogeneous Feature Transformer for Recommendation Systems](../../Summary/Ranking/summary_hhft_hierarchical_heterogeneous_transformer.md) | Alibaba (Taobao) | 2025.11 |
-| [HyFormer: Revisiting the Roles of Sequence Modeling and Feature Interaction in CTR Prediction](../../Summary/Ranking/summary_hyformer_unified_arch.md) | ByteDance | 2026.01 (RecSys '25) |
+| [HyFormer: Revisiting the Roles of Sequence Modeling and Feature Interaction in CTR Prediction](../../Summary/Long-Sequence/summary_hyformer_unified_arch.md) | ByteDance | 2026.01 (RecSys '25) |
 | [TokenMixer-Large: Scaling Up Large Ranking Models in Industrial Recommenders](../../Summary/Ranking/summary_tokenmixer_large.md) | ByteDance | 2026.02 |
 | [Kunlun: Establishing Scaling Laws for Massive-Scale Recommendation Systems through Unified Architecture Design](https://arxiv.org/abs/2602.10016) | Meta | 2026.02 |
 | [MTFM: A Scalable and Alignment-free Foundation Model for Industrial Recommendation in Meituan](https://arxiv.org/abs/2602.11235) | Meituan | 2026.02 |

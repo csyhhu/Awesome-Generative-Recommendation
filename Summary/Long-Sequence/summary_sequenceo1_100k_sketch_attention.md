@@ -2,7 +2,7 @@
 
 来源：arXiv: [2609.08443](https://arxiv.org/abs/2609.08443)（RecSys 2026，ByteDance / 抖音）
 
-前作：[Make It Long, Keep It Fast（STCA + RLB，10K）](summary_stca_rlb_ext_10k.md)；部署融合骨干：[MixFormer](summary_mixformer_co_scaling.md)
+前作：[Make It Long, Keep It Fast（STCA + RLB，10K）](summary_stca_rlb_ext_10k.md)；部署融合骨干：[MixFormer](../Ranking/summary_mixformer_co_scaling.md)
 
 ## 综合理解（我的表述）及点评
 > 本文设置了一个全局 Fix-length Query Matrix（prototype），对部分序列做压缩处理。该部分序列作为 kv，prototype 作为 query，进行第一次 attention。然后经过 residual、ffn 等基本操作，产生一个叫 sketch 的 fix-length matrix；从第二层开始，使用 sketch 作为 query，序列作为 kv 继续计算。最终将 sketch 作为该部分序列的表达进入计算。
