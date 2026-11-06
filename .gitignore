@@ -14,5 +14,9 @@ Summary/Ranking/summary_lige_gr_listwise_upgrade.md
 Summary/Ranking/summary_loopfm_historical_fm_representations.md
 Summary/SID/summary_semantic_id_prefix_ngram_stability.md
 Summary/Long-Sequence/summary_glass_coarse_to_fine_long_term_interest.md
+Summary/Ranking/summary_slimper.md
+Summary/Long-Sequence/summary_chronicle_tokens_lifelong.md
+Summary/SID/summary_foundv2_user_tokenizer.md
+Summary/Ranking/summary_llm_user_personas_at_scale.md
 
 Tutorials/Interest-Cache.md
